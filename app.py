@@ -1,14 +1,44 @@
-from flask import Flask, request, jsonify, send_from_directory
-from ultralytics import YOLO
+from flask import Flask, request, jsonify, Response, send_from_directory
 import cv2
 import numpy as np
-import os
+from ultralytics import YOLO
+import threading
 
 app = Flask(__name__)
-model = YOLO("YOLOv10x_gestures.pt")
 
+# Global variables for video processing
+camera = None
+processing = False
+current_model = 'YOLOv10n_gestures.pt'
+models = {
+    'YOLOv10n_gestures.pt': YOLO('models/YOLOv10n_gestures.pt'),
+    'YOLOv10x_gestures.pt': YOLO('models/YOLOv10x_gestures.pt')
+}
 
-# Serve frontend files
+def generate_frames():
+    global camera, processing, current_model
+    camera = cv2.VideoCapture(0)
+    processing = True
+    
+    while processing:
+        success, frame = camera.read()
+        if not success:
+            break
+            
+        # Perform detection with current model
+        results = models[current_model](frame, verbose=False)
+        annotated_frame = results[0].plot()
+        
+        ret, buffer = cv2.imencode('.jpg', annotated_frame)
+        frame = buffer.tobytes()
+        
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    
+    if camera:
+        camera.release()
+    processing = False
+
 @app.route('/')
 def index():
     return send_from_directory('static', 'index.html')
@@ -17,38 +47,28 @@ def index():
 def static_files(path):
     return send_from_directory('static', path)
 
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), 
+                   mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file uploaded"}), 400
+@app.route('/stop_feed', methods=['POST'])
+def stop_feed():
+    global processing
+    processing = False
+    return jsonify({'status': 'stopped'})
+
+@app.route('/switch_model', methods=['POST'])
+def switch_model():
+    global current_model
+    data = request.json
+    new_model = data.get('model')
     
-    file = request.files['file']
-    # Read the file in memory (it's sent as binary data)
-    img = np.frombuffer(file.read(), np.uint8)
-    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
-
-    if img is None:
-        return jsonify({"error": "Image cannot be processed"}), 400
-
-    results = model.predict(img)
-
-    # Process results
-    detections = []
-    for result in results:
-        for box in result.boxes:
-            detections.append({
-                "class": model.names[int(box.cls)],
-                "confidence": float(box.conf),
-                "bbox": box.xyxy.tolist()[0]
-            })
+    if new_model in models:
+        current_model = new_model
+        return jsonify({'status': 'success', 'model': current_model})
     
-    return jsonify(detections)
-
+    return jsonify({'status': 'error', 'message': 'Invalid model'}), 400
 
 if __name__ == '__main__':
-    # Create static folder if not exists
-    if not os.path.exists('static'):
-        os.makedirs('static')
-        
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000, threaded=True)

@@ -138,3 +138,29 @@ circle {
         stroke-dashoffset: -125px;
     }
 }
+
+body {
+    padding: 2rem;
+}
+
+.video-container {
+    margin: 0 auto;
+    max-width: 640px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#video {
+    width: 100%;
+    height: auto;
+    background: #000;
+}
+
+.controls {
+    margin-top: 1.5rem;
+}
+
+.btn {
+    min-width: 120px;
+}
