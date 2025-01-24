@@ -58,17 +58,36 @@ def stop_feed():
     processing = False
     return jsonify({'status': 'stopped'})
 
-@app.route('/switch_model', methods=['POST'])
-def switch_model():
+@app.route('/switch_model/<model_type>')
+def switch_model(model_type):
     global current_model
-    data = request.json
-    new_model = data.get('model')
+    valid_models = {
+        'nano': 'YOLOv10n_gestures.pt',
+        'x': 'YOLOv10x_gestures.pt'
+    }
     
-    if new_model in models:
-        current_model = new_model
-        return jsonify({'status': 'success', 'model': current_model})
+    if model_type in valid_models:
+        model_path = f"models/{valid_models[model_type]}"
+        
+        try:
+            # Load the new model
+            models[model_type] = YOLO(model_path)
+            current_model = model_type
+            return jsonify({
+                "status": "success",
+                "model": model_type,
+                "message": f"Switched to {model_type} model"
+            }), 200
+        except Exception as e:
+            return jsonify({
+                "status": "error",
+                "message": f"Failed to load model: {str(e)}"
+            }), 500
     
-    return jsonify({'status': 'error', 'message': 'Invalid model'}), 400
+    return jsonify({
+        "status": "error",
+        "message": "Invalid model specified"
+    }), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, threaded=True)

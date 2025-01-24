@@ -164,3 +164,57 @@ body {
 .btn {
     min-width: 120px;
 }
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-loading {
+    position: relative;
+    padding-right: 2.5rem;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    transform: translateY(-50%);
+}
+
+@keyframes spin {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+
+.model-select .btn-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.model-select[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.model-select.active[disabled] {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    opacity: 0.7;
+}

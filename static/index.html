@@ -16,12 +16,12 @@
 
         <!-- Video Stream Section -->
         <div class="video-container mb-4">
-            <img id="video" src="" alt="Video Stream" width="640" height="480">
+            <img id="video" width="640" height="480" class="img-fluid">
         </div>
 
         <!-- Controls Section -->
         <div class="controls mb-4">
-            <div class="d-grid gap-2 d-sm-flex justify-content-center">
+            <div class="d-grid gap-2 d-sm-flex justify-content-center mb-3">
                 <button id="startBtn" class="btn btn-success btn-lg px-4">
                     ▶ Start Detection
                 </button>
@@ -31,15 +31,20 @@
             </div>
             
             <!-- Model Selection -->
-            <div class="model-selector mt-3">
-                <div class="btn-group" role="group">
-                    <button type="button" class="model-select btn btn-primary active" 
-                           data-model="YOLOv10n_gestures.pt">
-                        Nano Model (Fast)
+            <!-- Update model buttons in index.html -->
+            <div class="model-selector">
+                <div class="btn-group">
+                    <button type="button" 
+                            class="model-select btn btn-primary active"
+                            data-model-type="nano"
+                            data-original-text="Nano (30 FPS)">
+                            Nano YOLOv10n 
                     </button>
-                    <button type="button" class="model-select btn btn-primary" 
-                           data-model="YOLOv10x_gestures.pt">
-                        Large Model (Accurate)
+                    <button type="button" 
+                            class="model-select btn btn-primary"
+                            data-model-type="x"
+                            data-original-text="Large (15 FPS)">
+                            Large YOLOv10x 
                     </button>
                 </div>
             </div>
