@@ -4,8 +4,10 @@ import cv2
 import numpy as np
 import os
 
+
 app = Flask(__name__)
-model = YOLO("YOLOv10x_gestures.pt")
+#model = YOLO("YOLOv10x_gestures.pt") slighlty better but heavier
+model = YOLO("YOLOv10n_gestures.pt")
 
 
 # Serve frontend files
