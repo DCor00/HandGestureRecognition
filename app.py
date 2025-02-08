@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response, send_from_directory
+from flask import Flask, request, jsonify, Response, send_from_directory, Blueprint
 from flask_socketio import SocketIO
 import cv2
 import numpy as np
@@ -6,9 +6,14 @@ from ultralytics import YOLO
 from collections import deque
 import json
 import threading
+from accounts.routes import account_bp
+from accounts.models import get_users, get_user, update_user, add_user
+
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")  # Enable CORS for SocketIO
+
+app.register_blueprint(account_bp)
 
 # Gesture sequences to detect
 GESTURE_SEQUENCES = {
@@ -152,5 +157,11 @@ def reset_sequence(sequence_name):
         return jsonify({"status": "success", "message": f"Reset {sequence_name}"}), 200
     return jsonify({"status": "error", "message": "Invalid sequence"}), 400
 
+
+
+
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8000, debug=True)
+
+

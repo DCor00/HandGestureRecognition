@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des comptes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-light text-center">
+  <div class="container py-5">
+    <h1 class="mb-4">Liste des comptes</h1>
+    <div id="account-list" class="row justify-content-center"></div>
+
+    <h2 class="mt-5">Connexion</h2>
+    <div id="login-result" class="alert d-none" role="alert"></div>
+
+    <h2 class="mt-5">Ajouter un compte</h2>
+    <div class="card p-4 shadow-sm mx-auto" style="max-width: 400px;">
+      <label class="form-label">Nom du compte:
+        <input type="text" id="new-username" class="form-control">
+      </label>
+      <label class="form-label">Geste(s) (séparés par une virgule):
+        <input type="text" id="new-gestures" class="form-control">
+      </label>
+      <button id="add-account-button" class="btn btn-success w-100 mt-3">Ajouter un compte</button>
+      <div id="add-result" class="alert d-none mt-3" role="alert"></div>
+    </div>
+  </div>
+
+  <script>
+    function loadAccounts() {
+      fetch('/accounts/')
+      .then(response => response.json())
+      .then(users => {
+        const listDiv = document.getElementById('account-list');
+        listDiv.innerHTML = '';
+        users.forEach(user => {
+          const col = document.createElement('div');
+          col.className = 'col-md-3';
+          const div = document.createElement('div');
+          div.className = 'account card p-3 shadow-sm';
+          div.textContent = user.username;
+          div.onclick = () => loginUser(user.username);
+          col.appendChild(div);
+          listDiv.appendChild(col);
+        });
+      });
+    }
+
+    function loginUser(username) {
+      const gesture = prompt(`Effectuez votre geste pour ${username}`);
+      if (!gesture) return;
+      const gestureArr = gesture.split(',').map(g => g.trim());
+
+      fetch('/accounts/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username, gesture: gestureArr })
+      })
+      .then(response => response.json())
+      .then(result => {
+        const loginDiv = document.getElementById('login-result');
+        loginDiv.textContent = result.success ? `Connexion réussie pour ${username}` : `Échec de connexion: ${result.error || "Erreur inconnue"}`;
+        loginDiv.className = `alert mt-3 ${result.success ? 'alert-success' : 'alert-danger'}`;
+        loginDiv.classList.remove('d-none');
+      });
+    }
+
+    document.getElementById('add-account-button').onclick = function() {
+      const username = document.getElementById('new-username').value.trim();
+      const gesturesInput = document.getElementById('new-gestures').value.trim();
+      if (!username || !gesturesInput) {
+        alert("Veuillez renseigner tous les champs");
+        return;
+      }
+      const gestures = gesturesInput.split(',').map(g => g.trim());
+      fetch('/accounts/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, gestures })
+      })
+      .then(response => response.json())
+      .then(result => {
+        const addDiv = document.getElementById('add-result');
+        addDiv.textContent = result.success ? "Compte ajouté avec succès" : result.error;
+        addDiv.className = `alert ${result.success ? 'alert-success' : 'alert-danger'}`;
+        addDiv.classList.remove('d-none');
+        if (result.success) loadAccounts();
+      });
+    };
+
+    loadAccounts();
+  </script>
+</body>
+</html>
