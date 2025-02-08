@@ -15,7 +15,26 @@
             <h1 class="display-5 fw-bold mb-3">👋 Real-Time Hand Gesture Detection</h1>
             <p class="lead text-muted">Live webcam processing with YOLOv10 models</p>
         </header>
+        <!-- Login Section -->
+        <div id="login-section">
+            <h2>Gesture Login</h2>
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Username" required>
+                <button type="submit">Start Gesture Authentication</button>
+            </form>
+            <div id="sequence-builder"></div>
+        </div>
 
+        <!-- Account Section -->
+        <div id="account-section" style="display: none;">
+            <h2>Account Settings</h2>
+            <p>Current Sequence: <span id="current-sequence"></span></p>
+            <button id="update-sequence">Update Gesture Sequence</button>
+            <div id="sequence-builder"></div>
+        </div>
+
+        <!-- Video Feed -->
+        <video id="video" autoplay></video>
         <!-- Video Stream Section -->
         <div class="video-container mb-4">
             <img id="video" width="640" height="480" class="img-fluid">
