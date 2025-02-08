@@ -27,8 +27,8 @@ models = {
 }
 
 # Global variables for sequence tracking
-gesture_history = deque(maxlen=100)  # Stores last 10 detected gestures
-sequence_triggers = {key: False for key in GESTURE_SEQUENCES.keys()}  # Tracks triggered sequences
+gesture_history = deque(maxlen=20)  
+# sequence_triggers = {key: False for key in GESTURE_SEQUENCES.keys()}  # Tracks triggered sequences
 
 def generate_frames():
     global camera, processing, current_model, gesture_history, sequence_triggers
@@ -57,18 +57,19 @@ def generate_frames():
         
         # Check for gesture sequences
         for sequence_name, sequence in GESTURE_SEQUENCES.items():
-            if list(gesture_history)[-len(sequence):] == sequence and not sequence_triggers[sequence_name]:
+            if all(gesture in list(gesture_history)[-20:] for gesture in sequence):  #and not sequence_triggers[sequence_name]:
                 print(f"Sequence detected: {sequence_name}")
-                sequence_triggers[sequence_name] = True
+                # sequence_triggers[sequence_name] = True
+                gesture_history = deque(maxlen=20)
                 trigger_event(sequence_name)  # Trigger event via SocketIO
         
         # Encode frame and predictions
-        ret, buffer = cv2.imencode('.jpg', annotated_frame)
+        ret, buffer = cv2.imencode('.webp', annotated_frame, [cv2.IMWRITE_WEBP_QUALITY, 50])
         frame = buffer.tobytes()
         
         # Yield frame and predictions
         yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
+               b'Content-Type: image/webp\r\n\r\n' + frame + b'\r\n'
                b'X-Predictions: ' + json.dumps({"gesture": current_gesture}).encode() + b'\r\n')
     
     if camera:
@@ -78,8 +79,8 @@ def generate_frames():
 def reset_sequence_trigger(sequence_name):
     """Reset the sequence trigger after a short delay."""
     import time
-    time.sleep(5)  # Wait for 5 seconds before resetting
-    sequence_triggers[sequence_name] = False
+    time.sleep(1)  # Wait for 5 seconds before resetting
+    # sequence_triggers[sequence_name] = False
     print(f"Sequence trigger reset: {sequence_name}")
 
 
