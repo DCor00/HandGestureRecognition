@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify, Response, send_from_directory, Blueprint
+from flask import Flask, request, jsonify, Response, send_from_directory, Blueprint, render_template
 from flask_socketio import SocketIO
 import cv2
 import numpy as np
 from ultralytics import YOLO
 from collections import deque
 import json
+import os 
 import threading
 from accounts.routes import account_bp
 from accounts.models import get_users, get_user, update_user, add_user
@@ -101,11 +102,11 @@ def trigger_event(sequence_name):
 
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    return render_template('index.html')
 
-@app.route('/<path:path>')
-def static_files(path):
-    return send_from_directory('static', path)
+@app.route('/realtime')
+def realtime():
+    return send_from_directory('static', 'realtime.html')
 
 @app.route('/video_feed')
 def video_feed():
@@ -158,10 +159,15 @@ def reset_sequence(sequence_name):
     return jsonify({"status": "error", "message": "Invalid sequence"}), 400
 
 
+@app.route('/<path:path>')
+def static_files(path):
+    return send_from_directory('static', path)
 
 
 
 if __name__ == '__main__':
+    if not os.path.exists('static'):
+        os.makedirs('static')
     socketio.run(app, host='0.0.0.0', port=8000, debug=True)
 
 
