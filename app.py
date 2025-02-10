@@ -116,47 +116,8 @@ def index():
 def realtime():
     return send_from_directory('static', 'realtime.html')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), 
-                   mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/stop_feed', methods=['POST'])
-def stop_feed():
-    global processing
-    processing = False
-    return jsonify({'status': 'stopped'})
 
-@app.route('/switch_model/<model_type>')
-def switch_model(model_type):
-    global current_model
-    valid_models = {
-        'nano': 'YOLOv10n_gestures.pt',
-        'x': 'YOLOv10x_gestures.pt'
-    }
-    
-    if model_type in valid_models:
-        model_path = f"models/{valid_models[model_type]}"
-        
-        try:
-            # Load the new model
-            models[model_type] = YOLO(model_path)
-            current_model = model_type
-            return jsonify({
-                "status": "success",
-                "model": model_type,
-                "message": f"Switched to {model_type} model"
-            }), 200
-        except Exception as e:
-            return jsonify({
-                "status": "error",
-                "message": f"Failed to load model: {str(e)}"
-            }), 500
-    
-    return jsonify({
-        "status": "error",
-        "message": "Invalid model specified"
-    }), 400
 
 @app.route('/reset_sequence/<sequence_name>', methods=['POST'])
 def reset_sequence(sequence_name):
@@ -166,11 +127,6 @@ def reset_sequence(sequence_name):
         return jsonify({"status": "success", "message": f"Reset {sequence_name}"}), 200
     return jsonify({"status": "error", "message": "Invalid sequence"}), 400
 
-
-# Real-time Detection Routes
-@app.route('/realtime')
-def realtime():
-    return send_from_directory('static', 'realtime.html')
 
 @app.route('/video_feed')
 def video_feed():
@@ -195,6 +151,9 @@ def switch_model(model_type):
 def upload():
     return send_from_directory('static', 'upload.html')
 
+
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -207,13 +166,13 @@ def predict():
     if img is None:
         return jsonify({"error": "Image cannot be processed"}), 400
 
-    results = upload_model.predict(img)
+    results = models[current_model].predict(img)
     
     detections = []
     for result in results:
         for box in result.boxes:
             detections.append({
-                "class": upload_model.names[int(box.cls)],
+                "class": models[current_model].names[int(box.cls)],
                 "confidence": float(box.conf),
                 "bbox": box.xyxy.tolist()[0]
             })
