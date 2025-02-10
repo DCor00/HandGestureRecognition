@@ -89,6 +89,14 @@ def reset_sequence_trigger(sequence_name):
     # sequence_triggers[sequence_name] = False
     print(f"Sequence trigger reset: {sequence_name}")
 
+# Real-time Detection Configuration
+camera = None
+processing = False
+current_model = 'nano'
+models = {
+    'nano': YOLO('models/YOLOv10n_gestures.pt'),
+    'x': YOLO('models/YOLOv10x_gestures.pt')
+}
 
 def trigger_event(sequence_name):
     """Handle events when a sequence is detected."""
@@ -159,11 +167,62 @@ def reset_sequence(sequence_name):
     return jsonify({"status": "error", "message": "Invalid sequence"}), 400
 
 
+# Real-time Detection Routes
+@app.route('/realtime')
+def realtime():
+    return send_from_directory('static', 'realtime.html')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/stop_feed', methods=['POST'])
+def stop_feed():
+    global processing
+    processing = False
+    return jsonify({'status': 'stopped'})
+
+@app.route('/switch_model/<model_type>')
+def switch_model(model_type):
+    global current_model
+    if model_type in models:
+        current_model = model_type
+        return jsonify({"status": "success", "model": model_type})
+    return jsonify({"status": "error", "message": "Invalid model"}), 400
+
+# Image Upload Routes
+@app.route('/upload')
+def upload():
+    return send_from_directory('static', 'upload.html')
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files['file']
+    img = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+
+    if img is None:
+        return jsonify({"error": "Image cannot be processed"}), 400
+
+    results = upload_model.predict(img)
+    
+    detections = []
+    for result in results:
+        for box in result.boxes:
+            detections.append({
+                "class": upload_model.names[int(box.cls)],
+                "confidence": float(box.conf),
+                "bbox": box.xyxy.tolist()[0]
+            })
+    
+    return jsonify(detections)
+
 @app.route('/<path:path>')
 def static_files(path):
     return send_from_directory('static', path)
-
-
 
 if __name__ == '__main__':
     if not os.path.exists('static'):
