@@ -1,10 +1,16 @@
 const video = document.getElementById('video');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
+const sequenceDisplay = document.getElementById('sequence-display');
+const celebrationSection = document.getElementById('celebration');
+const restartBtn = document.getElementById('restart-btn');
 let streamController = null;
 let isStreamActive = false;
 
-// Add this helper function at the top
+// SocketIO connection
+const socket = io('http://localhost:8000');
+
+// Helper function to set model button states
 function setModelButtonsState(disabled, loadingButton = null) {
     document.querySelectorAll('.model-select').forEach(btn => {
         btn.disabled = disabled;
@@ -18,7 +24,7 @@ function setModelButtonsState(disabled, loadingButton = null) {
     });
 }
 
-
+// Start the video stream
 async function startStream() {
     try {
         // Immediately update UI states
@@ -51,11 +57,7 @@ async function startStream() {
             });
         };
 
-        // Handle video errors
-        video.onerror = () => {
-            console.error('Video stream error');
-            stopStream();
-        };
+
         
     } catch (error) {
         console.error('Stream start failed:', error);
@@ -63,6 +65,7 @@ async function startStream() {
     }
 }
 
+// Stop the video stream
 async function stopStream() {
     try {
         if (streamController) {
@@ -88,9 +91,7 @@ async function stopStream() {
     }
 }
 
-
-// Modified model selection handler
-// Updated model switching with proper error handling
+// Handle model switching
 document.querySelectorAll('.model-select').forEach(button => {
     button.addEventListener('click', async (e) => {
         const targetButton = e.target.closest('.model-select');
@@ -135,6 +136,34 @@ document.querySelectorAll('.model-select').forEach(button => {
             targetButton.innerHTML = targetButton.dataset.originalText;
         }
     });
+});
+
+// Handle sequence detection
+socket.on('sequence_detected', (data) => {
+    if (isStreamActive) {
+        // Stop the stream
+        stopStream();
+        
+        // Show celebration section
+        celebrationSection.style.display = 'block';
+        sequenceDisplay.textContent = `Detected Sequence: ${data.sequence}`;
+        sequenceDisplay.style.color = 'green';
+        
+        // Trigger confetti
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+    }
+});
+
+// Restart handler
+restartBtn.addEventListener('click', () => {
+    celebrationSection.style.display = 'none';
+    sequenceDisplay.textContent = 'Waiting for sequence...';
+    sequenceDisplay.style.color = 'black';
+    startStream();
 });
 
 // Event listeners
