@@ -21,8 +21,11 @@ A Flask-based hand gesture recognition system that uses YOLO models to detect an
 
 ```
 .
+.
 ├── Info.plist
+├── LICENSE
 ├── README.md
+├── TFLite_conversion.ipynb
 ├── __pycache__
 │   └── app.cpython-312.pyc
 ├── accounts
@@ -36,38 +39,7 @@ A Flask-based hand gesture recognition system that uses YOLO models to detect an
 │   ├── SSDLiteMobileNetV3Large.pth
 │   ├── YOLOv10n_gestures.pt
 │   └── YOLOv10x_gestures.pt
-├── node_modules
-│   ├── io
-│   │   ├── LICENSE
-│   │   ├── README.md
-│   │   ├── helpers
-│   │   │   ├── generate_boundary.js
-│   │   │   ├── resource.js
-│   │   │   └── send.js
-│   │   ├── index.js
-│   │   ├── lib
-│   │   │   ├── __main__.js
-│   │   │   ├── del.js
-│   │   │   ├── get.js
-│   │   │   ├── post.js
-│   │   │   ├── put.js
-│   │   │   ├── submit.js
-│   │   │   └── upload.js
-│   │   └── package.json
-│   └── mime
-│       ├── CHANGELOG.md
-│       ├── LICENSE
-│       ├── Mime.js
-│       ├── README.md
-│       ├── cli.js
-│       ├── index.js
-│       ├── lite.js
-│       ├── package.json
-│       └── types
-│           ├── other.js
-│           └── standard.js
-├── package-lock.json
-├── package.json
+├── requirements.txt
 ├── static
 │   ├── accounts.html
 │   ├── css
