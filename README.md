@@ -17,8 +17,14 @@ A Flask-based hand gesture recognition system that uses YOLO models to detect an
 - **User Account Management (dev):** 
   - Basic account routes and models for managing users.
 
-## Directory Structure
+## Main scripts 
 
+There is `app.py` that orchestrate the different scripts, then there are 3 mains html, css and js files linked :
+- `templates/index.html`, `static/main.css`
+- `static/realtime.html`, `static/css/realtime.css`, `static/js/realtime.js`
+- `static/upload.html`, `static/css/upload.css`, `static/js/upload.js`
+
+## Directory Structure
 ```
 .
 .

@@ -71,7 +71,7 @@ def generate_frames():
                 trigger_event(sequence_name)  # Trigger event via SocketIO
         
         # Encode the annotated frame as a webp image
-        ret, buffer = cv2.imencode('.webp', annotated_frame, [cv2.IMWRITE_WEBP_QUALITY, 50])
+        ret, buffer = cv2.imencode('.webp', annotated_frame, [cv2.IMWRITE_WEBP_QUALITY, 50]) # to change the quality for performance
         frame = buffer.tobytes()
         
         # Frame and predictions to be sent to client
