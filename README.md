@@ -23,6 +23,7 @@ There is `app.py` that orchestrate the different scripts, then there are 3 mains
 - `templates/index.html`, `static/main.css`
 - `static/realtime.html`, `static/css/realtime.css`, `static/js/realtime.js`
 - `static/upload.html`, `static/css/upload.css`, `static/js/upload.js`
+Since there is also an Android app (developed by [surendramran](https://github.com/surendraman) and available at [YOLO Android](https://github.com/surendramaran/YOLO)) related to the project, a small Jupyter notebook called `TFLite_conversion.ipynb` is included in the repo for converting the YOLO model to TFLite.
 
 ## Directory Structure
 ```
