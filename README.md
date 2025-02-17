@@ -1,6 +1,8 @@
-# Hand Gesture Recognition
+# Hand Gesture Recognition  
 
-A Flask-based hand gesture recognition system that uses YOLO models to detect and process hand gestures in real-time. The application supports both live webcam streams and image uploads for gesture prediction and includes basic account management functionality.
+A Flask-based hand gesture recognition system that uses YOLO models to detect and process hand gestures in real-time. The application supports both live webcam streams and image uploads for gesture prediction and includes basic account management functionality.  
+
+We used YOLO models **Yolov10x** and **Yolov10**, pretrained on the **HaGRID dataset** ([source](https://github.com/hukenovs/hagrid)), which also provides both the dataset and the models.
 
 ## Features
 
@@ -14,8 +16,11 @@ A Flask-based hand gesture recognition system that uses YOLO models to detect an
   - Dynamically switch between different pre-trained YOLO models.
 - **Web Interface:** 
   - Simple web pages for real-time view, image uploads, and account management.
+- **Android App:**
+  - Simple android app for real time hand gesture recognition. 
 - **User Account Management (dev):** 
   - Basic account routes and models for managing users.
+
 
 ## Main scripts 
 
@@ -24,7 +29,7 @@ There is `app.py` that orchestrate the different scripts, then there are 3 mains
 - `static/realtime.html`, `static/css/realtime.css`, `static/js/realtime.js`
 - `static/upload.html`, `static/css/upload.css`, `static/js/upload.js`
 
-### Android app
+## Android app
 Since there is also an Android app (developed by [surendramran](https://github.com/surendraman) and available at [YOLO Android](https://github.com/surendramaran/YOLO)) related to the project, a small Jupyter notebook called `TFLite_conversion.ipynb` is included in the repo for converting the YOLO model to TFLite.
 
 ## Directory Structure
